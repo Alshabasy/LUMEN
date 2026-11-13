@@ -9,34 +9,48 @@
       "longitude_deg_east": 23.47297,
       "radius_km": 1737.4,
       "frame": "MOON_ME_DE440_ME421",
-      "source": "NASA Apollo 11 mission documentation; coordinate convention follows Horizons lunar observer setup"
+      "verified": true,
+      "source": "NASA actual Apollo 11 landing coordinates (0.67408° N, 23.47297° E), IAU Mean Earth/Polar Axis system: https://www.nasa.gov/wp-content/uploads/static/history/SP-4029/Apollo_18-27_LM_Lunar_Landing.htm"
+    },
+    {
+      "id": "apollo-12",
+      "name": "Apollo 12 reference",
+      "latitude_deg": -3.0128,
+      "longitude_deg_east": -23.4219,
+      "radius_km": 1737.4,
+      "frame": "MOON_ME_DE440_ME421",
+      "verified": true,
+      "source": "NASA/NSSDC Apollo landing-site coordinates, Lunar Module row (-3.0128° in the degrees-N column, i.e. 3.0128° S; -23.4219° in degrees-E, i.e. 23.4219° W), planetocentric Mean Earth/Polar Axis reference system: https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html"
     },
     {
       "id": "shackleton-rim",
       "name": "Shackleton rim",
-      "latitude_deg": -89.9,
-      "longitude_deg_east": 0.0,
+      "latitude_deg": -89.7668,
+      "longitude_deg_east": -171.87,
       "radius_km": 1737.4,
       "frame": "MOON_ME_DE440_ME421",
-      "source": "Candidate label only; replace with a verified cited site source before scientific release"
+      "verified": true,
+      "source": "NASA Lunar Surface Data Book, Table A2-2, R04/Site04 Shackleton Rim; center coordinates derived from PGDA DEM polygons (reported 5–10 m center-point accuracy); source frame is MOON_ME/DE421: https://ntrs.nasa.gov/api/citations/20230007818/downloads/ACD-50044%20Lunar%20Surface%20Data%20Book%20Rev%20A.pdf#page=58 ; PGDA: https://pgda.gsfc.nasa.gov/products/78"
     },
     {
       "id": "de-gerlache-rim",
-      "name": "de Gerlache rim",
-      "latitude_deg": -88.7,
-      "longitude_deg_east": 240.0,
+      "name": "de Gerlache Rim 1",
+      "latitude_deg": -88.6834,
+      "longitude_deg_east": -67.9321,
       "radius_km": 1737.4,
       "frame": "MOON_ME_DE440_ME421",
-      "source": "Candidate label only; replace with a verified cited site source before scientific release"
+      "verified": true,
+      "source": "NASA Lunar Surface Data Book, Table A2-2, R11/Site11 de Gerlache Rim 1; center coordinates derived from PGDA DEM polygons (reported 5–10 m center-point accuracy); source frame is MOON_ME/DE421: https://ntrs.nasa.gov/api/citations/20230007818/downloads/ACD-50044%20Lunar%20Surface%20Data%20Book%20Rev%20A.pdf#page=58 ; PGDA: https://pgda.gsfc.nasa.gov/products/78"
     },
     {
       "id": "malapert-massif",
-      "name": "Malapert massif",
-      "latitude_deg": -86.0,
-      "longitude_deg_east": 0.0,
+      "name": "Malapert Massif",
+      "latitude_deg": -85.9948,
+      "longitude_deg_east": -0.23578,
       "radius_km": 1737.4,
       "frame": "MOON_ME_DE440_ME421",
-      "source": "Candidate label only; replace with a verified cited site source before scientific release"
+      "verified": true,
+      "source": "NASA Lunar Surface Data Book, Table A2-2, R23/Site23 Malapert Massif; center coordinates derived from PGDA DEM polygons (reported 5–10 m center-point accuracy); source frame is MOON_ME/DE421: https://ntrs.nasa.gov/api/citations/20230007818/downloads/ACD-50044%20Lunar%20Surface%20Data%20Book%20Rev%20A.pdf#page=58 ; PGDA: https://pgda.gsfc.nasa.gov/products/78"
     }
   ]
 }

@@ -33,6 +33,8 @@ A fast, beautiful web app that lets planners, educators and the public:
 ### 1.3 v1 scope (must work flawlessly)
 - 4–6 documented candidate sites (south-pole candidates + at least one Apollo reference site).
 - Precomputed Sun/Earth azimuth/elevation time series via **SPICE** for a fixed date window.
+- Current precompute window: **2027-01-01T00:00:00Z through 2027-03-02T00:00:00Z**, inclusive, at 900 s. Window summaries are calculated over this full generated interval.
+- A 3D viewer for the selected lunar site and an optional current Earth/Sun and Moon/Earth orbital-context view from **JPL Horizons vectors**. Visual distance scales are expanded and labelled.
 - Refined event times (sunrise/sunset, Earthrise/Earthset).
 - Sky dome, 3D Moon scene, timeline, shared time cursor, compare mode, method/limits panel.
 - **Flat (reference-sphere) local horizon only.** Terrain is *not* modelled in v1 and the UI must say so wherever results are shown.
@@ -79,7 +81,7 @@ No backend server, database, user accounts, LOLA DEM processing, link budgets, r
 | Icons | **Lucide** | |
 | Tests | **Vitest** (+ React Testing Library only for critical bits) | Playwright optional, only if time remains |
 
-No TanStack Query, no shadcn, no form library in v1 — data is static JSON loaded once and cached in memory.
+No TanStack Query, no shadcn, no form library in v1 — SPICE datasets are static JSON loaded once; current Horizons snapshots and orbit vectors use the existing same-origin API routes.
 
 ### 3.2 Scientific precompute (Python, run locally on Mac/Linux)
 | Area | Choice |
@@ -92,13 +94,14 @@ No TanStack Query, no shadcn, no form library in v1 — data is static JSON load
 | Lint | Ruff |
 
 ### 3.3 Hosting and tools
-Static hosting (GitHub Pages, Netlify or Vercel — check current free-tier limits). Git + GitHub. VS Code. Node LTS.
+Static hosting (GitHub Pages, Netlify or Vercel — check current free-tier limits). The v1.1 live Horizons snapshot requires a same-origin serverless function; Vercel is the configured deployment target for that route. Git + GitHub. VS Code. Node LTS.
 
 ### 3.4 Data sources
 | Data | Source | Use |
 |---|---|---|
 | Ephemerides, frames, constants, leapseconds | NAIF/JPL SPICE kernels | all geometry |
 | Independent reference | JPL Horizons | validation spot checks |
+| Current orbital context | JPL Horizons VECTORS API, DE441 | geometric Earth heliocentric and Moon geocentric vectors in Ecliptic J2000 |
 | Moon surface texture (visual only) | NASA/LRO-derived public imagery (e.g., NASA Visible Earth/SVS) | illustrative backdrop |
 | 3D hardware models (optional) | NASA 3D Resources | lander/rover set-dressing |
 | Moon texture, real (visual) | Moon Trek WMTS — LRO WAC global mosaic (open tiles; bake a 2K–4K texture at build time) | hero + 3D Moon (replaces illustrative texture; credit LRO/NASA) |
@@ -128,6 +131,8 @@ React + R3F app  → dome · 3D Moon · timeline · compare · method panel
 ```text
 lumen/
 ├── AGENTS.md
+├── api/horizons.ts            # v1.1 same-origin JPL Horizons proxy
+├── vercel.json                # Vite static build + serverless API deployment
 ├── README.md                  # short run guide (only commands that were actually tested)
 ├── .gitignore  .env.example
 ├── config/
@@ -153,6 +158,12 @@ lumen/
     ├── validation.md          # Horizons comparisons + tolerances
     └── decisions.md           # lightweight decision log (see §10)
 ```
+
+**Next-version live extension (approved 2026-11-13):** `api/horizons.ts` is a
+small same-origin proxy for the NASA/JPL Horizons observer API. The Vite dev
+server mounts it locally; `vercel.json` serves it as a Vercel function in a
+production deployment. This does not replace or mutate the static SPICE
+datasets.
 
 ---
 
@@ -212,7 +223,7 @@ Quantise angles to 0.01° and use arrays, not per-sample objects. Budget: ≤ 1.
 
 ### 5.6 Validation (mandatory before UI polish)
 1. **Horizons spot checks:** at least 3 epochs × 2 sites (Sun and Earth az/el). Use the correct Horizons observer-on-Moon setup (check the manual for site-coordinate syntax). Record tolerances and mismatch causes in `docs/validation.md`.
-   **Horizons setup (verified against the manual/API docs, not yet run by us):** target Sun (`10`) and Earth (`399`); observer table; centre `coord@301` with `COORD_TYPE=GEODETIC` and `SITE_COORD='<E-lon>,<lat>,<h_km>'` (Moon longitudes are **east-positive**); request quantity 4 (apparent AZ/EL) and 13 (angular diameter); `CSV_FORMAT=YES`; time in UT. No refraction is modelled for non-Earth sites (matches our airless assumption). Horizons uses the **lunar mean-Earth frame (DE421-based)** and has no PA frame — keep site coordinates in ME. Rise/set events: `STEP_SIZE='1m RAD'` with `R_T_S_ONLY` (geometric horizon, no refraction; Horizons states rise/set may not be accurate below ~1 minute). **Horizons is best-effort — save every reference response as a fixture in the repo** so tests and the demo never depend on it being online.
+   **Horizons setup:** target Sun (`10`) and Earth (`399`); observer table; centre `coord@301` with `COORD_TYPE=GEODETIC` and `SITE_COORD='<E-lon>,<lat>,<h_km>'` (Moon longitudes are **east-positive**); request quantity 4 (apparent AZ/EL) and 13 (angular diameter); `CSV_FORMAT=YES`; time in UT. No refraction is modelled for non-Earth sites (matches our airless assumption). Horizons uses the **lunar mean-Earth frame (DE421-based)** and has no PA frame — keep site coordinates in ME. Rise/set events: `STEP_SIZE='1m RAD'` with `R_T_S_ONLY` (geometric horizon, no refraction; Horizons states rise/set may not be accurate below ~1 minute). **Horizons is best-effort — save every reference response as a fixture in the repo** so tests and the demo never depend on it being online. Horizons currently states that its TDB-to-UTC conversion after 2027-01-01 holds the last known leap-second offset; record this future time-tag limitation when using the configured interval.
 2. **Sanity checks (not a substitute for #1):**
    - At the lunar poles the Sun stays within roughly ±1.6° of the horizon (axial tilt ≈ 1.54°).
    - From a near-side equatorial site Earth stays in nearly the same sky region with a small libration wobble.
@@ -230,6 +241,17 @@ Quantise angles to 0.01° and use arrays, not per-sample objects. Budget: ≤ 1.
 - **Method panel:** frames, time scales, kernels (names/versions), data sources, limitations, validation summary, credits.
 - **Loading/empty/error states** are designed, not defaults. A failed JSON fetch shows a clear message and a retry.
 - Units on every axis, label and tooltip.
+- **v1.1 current snapshot:** fetch current-minute airless apparent Sun/Earth
+  azimuth, elevation and angular diameter from JPL Horizons for the selected
+  curated site. Label it as current ephemeris, never as telemetry or live
+  surface conditions. Keep it separate from the SPICE cursor, show UTC and
+  provenance, refresh at most once per minute, preserve the last good snapshot
+  on transient failures, and continue to state the flat-horizon/terrain limit.
+- **v1.2 atmosphere:** the page-wide star drift and nebula are illustrative
+  motion. Label them so they cannot be mistaken for a measured star catalog;
+  the Sun/Earth site directions remain tied to the live Horizons snapshot.
+  Sound is synthesized locally with Web Audio, opt-in after a user gesture,
+  quiet by default, and has a master volume control. No audio autoplay.
 
 ---
 
@@ -336,6 +358,15 @@ Add a row for any decision affecting several parts: frame name, aberration setti
 |---|---|---|---|---|
 | — | Lean v1, terrain deferred | Full engine now | 24–48 h limit, validate first | Amr |
 | — | Flat-horizon local model in v1, labelled everywhere | Spherical-only silently | Honesty | Amr |
+| 2026-11-13 | Bebas Neue display + Manrope body + DM Mono data type system | Generic geometric display face | Condensed display echoes mission instrumentation while preserving readable data | Amr |
+| 2026-11-13 | Existing Moon animation used as a muted, labelled hero background | Decorative-only static hero | Gives the landing state an immediate lunar context without treating art as science | Amr |
+| 2026-11-13 | Lazy-loaded R3F orbital instrument in the hero | CSS-only depth | Adds real 3D shapes while keeping the initial bundle focused on the explorer | Amr |
+| 2026-11-13 | Lenis is the single smooth-scroll layer; GSAP owns animation timing | Multiple scroll systems | Prevents competing scroll state and honors reduced-motion behavior | Amr |
+| 2026-11-13 | Tailwind utilities supplement, rather than replace, the custom token CSS | Component-kit styling | Keeps the distinctive visual system while using the mandated stack | Amr |
+| 2026-11-13 | v1.1 adds a current-minute NASA/JPL Horizons Sun/Earth snapshot through a same-origin Vercel function; Vite mounts the same handler in development | Browser cross-origin fetch / replacing SPICE timeline | Horizons does not return browser CORS headers; preserve reproducible SPICE outputs while adding a clearly separate, refreshed current ephemeris | Amr |
+| 2026-11-13 | v1.2 adds a parallax star canvas, opt-in Web Audio soundscape, and desktop reticle cursor | Static backdrop / bundled sound files / native mouse pointer only | Create an immersive guided feel with low-cost, local effects; preserve reduced-motion behavior and keep the starfield labeled illustrative | Amr |
+| 2026-11-13 | v1.3 adds a free camera for the selected lunar surface site and an optional current Horizons vector orbit view | Static sky-only 3D scene | Let users inspect the site, then orient its lunar context with current geometric state vectors; disclose expanded visual distances and preserve SPICE cursor geometry separately | Amr |
+| 2026-11-13 | Precompute interval is 2027-01-01T00:00:00Z through 2027-03-02T00:00:00Z inclusive at 900 s, with kernel interval checks before generation | Previous shorter 2026 interval | Compute summary fractions over a window longer than two lunar synodic cycles; keep the future UTC conversion caveat visible | Amr |
 
 ---
 
@@ -372,6 +403,12 @@ Only start after v1 is deployed and validated. Keep these rules when you do:
 ## 13. Testing and release checklist
 
 **Automated:** pytest (time conversion, frame transform, event bisection, coverage failure); Vitest (verdict logic, countdown math, unit formatting); type-check and production build in CI if time allows.
+
+**Live-data checks:** selected-site requests must use the curated coordinate
+source, query only the Sun/Earth and at most once per minute, fail clearly when
+Horizons is unavailable, and preserve the last good snapshot. Live output must
+remain separate from SPICE series and include UTC, units, source, and the flat
+horizon/terrain caveat. Live means current Horizons ephemeris, not telemetry.
 
 **Manual "it works" checklist:**
 - [ ] Clean clone → documented commands start the app.

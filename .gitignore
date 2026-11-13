@@ -4,9 +4,9 @@ __pycache__/
 .ruff_cache/
 data/kernels/*
 !data/kernels/.gitkeep
+data/kernel_checksums.txt
 data/pgda/
 frontend/node_modules/
 frontend/dist/
-frontend/public/data/*.json
 frontend/public/moon_wac.webp
 .DS_Store

@@ -4,8 +4,10 @@ import pytest
 from scripts.lumen_science import (
     Site,
     bisect_crossing,
+    brackets_zero,
     enu_basis,
     observe_vector,
+    require_coverage,
     site_vector_km,
 )
 
@@ -34,3 +36,16 @@ def test_bisection_refines_crossing():
 def test_bisection_rejects_non_bracket():
     with pytest.raises(ValueError, match="bracket"):
         bisect_crossing(lambda second: second + 1, 0, 10)
+
+
+def test_crossing_bracket_uses_continuous_values_not_rounded_zero():
+    assert round(-0.004, 2) == 0
+    assert round(-0.002, 2) == 0
+    assert not brackets_zero(-0.004, -0.002)
+    assert brackets_zero(-0.004, 0.006)
+
+
+def test_kernel_coverage_requires_one_interval_to_cover_full_window():
+    require_coverage(10, 20, [(0, 30)], "test kernel")
+    with pytest.raises(ValueError, match="does not cover"):
+        require_coverage(10, 20, [(0, 15), (15, 30)], "test kernel")

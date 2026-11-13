@@ -22,6 +22,7 @@ class Site:
     radius_km: float
     frame: str
     source: str
+    verified: bool = True
 
 
 @dataclass(frozen=True)
@@ -78,6 +79,11 @@ def angular_radius_deg(body_radius_km: float, distance_km: float) -> float:
     return math.degrees(math.asin(min(1.0, body_radius_km / distance_km)))
 
 
+def brackets_zero(left: float, right: float) -> bool:
+    """Return whether continuous endpoint values include or straddle zero."""
+    return left == 0 or right == 0 or (left < 0 < right) or (right < 0 < left)
+
+
 def bisect_crossing(
     function: Callable[[float], float],
     left: float,
@@ -130,6 +136,10 @@ def load_sites(path: Path) -> list[Site]:
 
 
 def validate_site(site: Site) -> None:
+    if not site.verified:
+        raise ValueError(
+            f"{site.id}: site coordinates are not verified; refusing to compute results"
+        )
     if not -90 <= site.latitude_deg <= 90:
         raise ValueError(f"{site.id}: latitude must be between -90 and 90 degrees")
     if not -360 <= site.longitude_deg_east <= 360:
@@ -145,6 +155,20 @@ def validate_site(site: Site) -> None:
 def ensure_step(step_s: int) -> None:
     if step_s <= 0 or step_s > 86400:
         raise ValueError("step_s must be greater than zero and no more than one day")
+
+
+def require_coverage(
+    start_et: float,
+    end_et: float,
+    intervals: Iterable[tuple[float, float]],
+    label: str,
+) -> None:
+    """Fail unless one kernel coverage interval contains the full ET window."""
+    if not any(left <= start_et and right >= end_et for left, right in intervals):
+        raise ValueError(
+            f"{label} does not cover requested ET interval "
+            f"[{start_et:.3f}, {end_et:.3f}]"
+        )
 
 
 def iter_epochs(start_et: float, end_et: float, step_s: int) -> Iterable[float]:

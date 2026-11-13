@@ -4,8 +4,8 @@
 # If a download fails, open the printed URL in a browser and fix the file name.
 #
 # Usage:
-#   ./scripts/fetch_data.sh              # SPICE kernels (about 35 MB) + checksums
-#   ./scripts/fetch_data.sh pgda Site04  # optional: one PGDA 5 m terrain tile (asks before downloading)
+#   ./fetch_data.sh              # SPICE kernels + checksums
+#   ./fetch_data.sh pgda Site04  # optional: one PGDA 5 m terrain tile (asks before downloading)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 K="$ROOT/data/kernels"; mkdir -p "$K"

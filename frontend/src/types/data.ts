@@ -7,6 +7,7 @@ export interface SiteMeta {
   longitude_deg_east: number
   radius_km: number
   frame: string
+  verified: boolean
   source: string
 }
 
@@ -40,8 +41,10 @@ export interface LumenDataset {
     longest_earth_outage_h: number | null
   }
   provenance: {
-    kernels: Array<{ name: string; path: string }>
+    kernels: Array<{ name: string; path: string; sha256: string }>
     algorithm_commit: string
+    algorithm_dirty: boolean
+    algorithm_sources: Array<{ path: string; sha256: string }>
     generated_utc: string
     aberration: string
   }

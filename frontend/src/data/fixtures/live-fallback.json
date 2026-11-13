@@ -1,0 +1,86 @@
+{
+  "capturedAtUtc": "2026-11-13T11:50:00Z",
+  "source": "NASA/JPL Horizons API \u00b7 DE441",
+  "sites": {
+    "apollo-11": {
+      "siteId": "apollo-11",
+      "asOfUtc": "2026-11-13T11:50:00Z",
+      "fetchedAtUtc": "2026-11-13T11:50:00Z",
+      "sun": {
+        "azimuthDeg": 91.413567,
+        "elevationDeg": -19.335491,
+        "angularDiameterDeg": 0.5394872222222222
+      },
+      "earth": {
+        "azimuthDeg": 280.419281,
+        "elevationDeg": 65.559114,
+        "angularDiameterDeg": 1.8092958333333333
+      },
+      "source": "NASA/JPL Horizons API"
+    },
+    "apollo-12": {
+      "siteId": "apollo-12",
+      "asOfUtc": "2026-11-13T11:50:00Z",
+      "fetchedAtUtc": "2026-11-13T11:50:00Z",
+      "sun": {
+        "azimuthDeg": 100.569212,
+        "elevationDeg": -65.792435,
+        "angularDiameterDeg": 0.5394836111111111
+      },
+      "earth": {
+        "azimuthDeg": 71.008423,
+        "elevationDeg": 65.703869,
+        "angularDiameterDeg": 1.8093044444444444
+      },
+      "source": "NASA/JPL Horizons API"
+    },
+    "shackleton-rim": {
+      "siteId": "shackleton-rim",
+      "asOfUtc": "2026-11-13T11:50:00Z",
+      "fetchedAtUtc": "2026-11-13T11:50:00Z",
+      "sun": {
+        "azimuthDeg": 304.661789,
+        "elevationDeg": 1.688944,
+        "angularDiameterDeg": 0.5394894444444445
+      },
+      "earth": {
+        "azimuthDeg": 171.334346,
+        "elevationDeg": -5.365268,
+        "angularDiameterDeg": 1.8015313888888889
+      },
+      "source": "NASA/JPL Horizons API"
+    },
+    "de-gerlache-rim": {
+      "siteId": "de-gerlache-rim",
+      "asOfUtc": "2026-11-13T11:50:00Z",
+      "fetchedAtUtc": "2026-11-13T11:50:00Z",
+      "sun": {
+        "azimuthDeg": 200.721669,
+        "elevationDeg": 0.324902,
+        "angularDiameterDeg": 0.5394894444444445
+      },
+      "earth": {
+        "azimuthDeg": 67.300971,
+        "elevationDeg": -4.627966,
+        "angularDiameterDeg": 1.8016302777777777
+      },
+      "source": "NASA/JPL Horizons API"
+    },
+    "malapert-massif": {
+      "siteId": "malapert-massif",
+      "asOfUtc": "2026-11-13T11:50:00Z",
+      "fetchedAtUtc": "2026-11-13T11:50:00Z",
+      "sun": {
+        "azimuthDeg": 133.042713,
+        "elevationDeg": -1.177763,
+        "angularDiameterDeg": 0.5394891666666667
+      },
+      "earth": {
+        "azimuthDeg": 359.704249,
+        "elevationDeg": -1.13061,
+        "angularDiameterDeg": 1.8021008333333333
+      },
+      "source": "NASA/JPL Horizons API"
+    }
+  }
+}
