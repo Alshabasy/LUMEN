@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+data/kernels/*
+!data/kernels/.gitkeep
+data/pgda/
+frontend/node_modules/
+frontend/dist/
+frontend/public/data/*.json
+frontend/public/moon_wac.webp
+.DS_Store

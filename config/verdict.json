@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "label": "Placeholder screening thresholds — not NASA criteria",
+  "thresholds": {
+    "go_min_sunlit_fraction": 0.6,
+    "go_min_earth_visible_fraction": 0.7,
+    "caution_min_sunlit_fraction": 0.3,
+    "caution_min_earth_visible_fraction": 0.4
+  }
+}

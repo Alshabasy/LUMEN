@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "coordinate_convention": "planetocentric selenographic latitude, east-positive longitude, km",
+  "sites": [
+    {
+      "id": "apollo-11",
+      "name": "Apollo 11 reference",
+      "latitude_deg": 0.67408,
+      "longitude_deg_east": 23.47297,
+      "radius_km": 1737.4,
+      "frame": "MOON_ME_DE440_ME421",
+      "source": "NASA Apollo 11 mission documentation; coordinate convention follows Horizons lunar observer setup"
+    },
+    {
+      "id": "shackleton-rim",
+      "name": "Shackleton rim",
+      "latitude_deg": -89.9,
+      "longitude_deg_east": 0.0,
+      "radius_km": 1737.4,
+      "frame": "MOON_ME_DE440_ME421",
+      "source": "Candidate label only; replace with a verified cited site source before scientific release"
+    },
+    {
+      "id": "de-gerlache-rim",
+      "name": "de Gerlache rim",
+      "latitude_deg": -88.7,
+      "longitude_deg_east": 240.0,
+      "radius_km": 1737.4,
+      "frame": "MOON_ME_DE440_ME421",
+      "source": "Candidate label only; replace with a verified cited site source before scientific release"
+    },
+    {
+      "id": "malapert-massif",
+      "name": "Malapert massif",
+      "latitude_deg": -86.0,
+      "longitude_deg_east": 0.0,
+      "radius_km": 1737.4,
+      "frame": "MOON_ME_DE440_ME421",
+      "source": "Candidate label only; replace with a verified cited site source before scientific release"
+    }
+  ]
+}
