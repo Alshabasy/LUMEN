@@ -21,22 +21,29 @@ autoplay when `prefers-reduced-motion: reduce` is active.
 
 ## Local browser smoke
 
-Using the production preview and Playwright on 2026-11-13:
+Using the anonymous Vercel preview and a fresh isolated Codex browser context on
+2026-11-13 (not an incognito browser profile):
 
 - At a 320 × 720 viewport, `document.documentElement.scrollWidth` was 320 px.
 - With reduced motion emulated, the hero video was paused, `autoplay` was false,
   and its poster URL was present.
 - Keyboard focus on the time slider was visible; ArrowRight advanced one sample;
   Space started and stopped playback.
-- With `/api/horizons` and `/api/orbits` unavailable on the static preview, the
-  local sky panels showed the committed `CACHED SNAPSHOT` fallback. No browser
-  page errors were recorded.
+- Landing page and Explorer rendered; Compare mode opened. LIVE NOW displayed a
+  timestamped NASA/JPL Horizons ephemeris, and LIVE ORBITS displayed the JPL
+  vector view. The time slider accepted ArrowRight and the selected-site cursor
+  advanced in the earlier browser run. No browser page errors were recorded in
+  the earlier run; the final preview run inspected the rendered states but did
+  not capture a browser console log.
+- Direct HTTP checks on the final preview: `/` returned 200, `/api/orbits`
+  returned 200 with `epochUtc`, `frame`, `units`, and vector fields, and both
+  `/api/horizons` Sun and Earth requests at the same UTC minute returned 200
+  with observer-table results. Cached fallback behavior was verified on the
+  earlier static-preview run, not re-induced on the final Vercel preview.
 
 ## Production Lighthouse
 
-**Not run.** There is no deployed production URL yet. The release record in the
-README documents the deployment blocker: Vercel CLI/login state and
-`VERCEL_*` credentials were unavailable in this environment. Local preview
-results are not reported as production Lighthouse scores. Run Lighthouse mobile
-against the production URL after deployment and record both Performance and
-Accessibility scores here; targets are 85 and 90 respectively.
+**Not run.** The anonymous Vercel preview is temporary and has not been claimed
+as a persistent production deployment. No Lighthouse mobile scores are
+available. Run Lighthouse against the claimed production URL and record both
+Performance and Accessibility scores; targets are 85 and 90 respectively.

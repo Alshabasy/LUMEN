@@ -78,6 +78,38 @@ mismatch remains to explain. The use of a semidiameter cutoff is required to
 compare Horizons limb events to LUMEN center events, rather than evidence that
 the two default event definitions are identical.
 
+The live observer query was exercised directly against the Horizons API on
+2026-11-13 at 18:13 UTC with `CENTER=coord@301`, `COORD_TYPE=GEODETIC`, the
+Apollo 11 east-positive coordinates, and `APPARENT=AIRLESS`. The recorded
+response was HTTP 200, no API error, 11 table rows for a ten-minute span, and the
+output header contained `Atmos refraction: NO (AIRLESS)`. The application route
+now sends this parameter explicitly, validates a shared current UTC-minute
+epoch for Sun/Earth requests, and has unit assertions for the outgoing query.
+
+## Disk geometry and sampled outage summaries
+
+The generated Sun angular-radius series uses the SPICE distance from the lunar
+surface site and the NASA Goddard Sun Fact Sheet volumetric mean radius of
+695,700 km. Across the regenerated datasets, the radius ranges from 0.2688° to
+0.2717°. The center-based summary fractions and event times remain unchanged;
+the UI separately displays upper-limb and full-disk clearance states.
+
+Longest dark and Earth-centre outage runs are computed from the sampled series.
+Their duration is sample count multiplied by 900 seconds. A longest run that
+touches a generated-window edge is marked window-bounded and is a lower bound,
+not a complete physical outage. Regenerated values are:
+
+| Site | Longest dark (h) | Window-bounded | Longest Earth-centre outage (h) | Window-bounded |
+|---|---:|:---:|---:|:---:|
+| Apollo 11 reference | 354.75 | No | 0.00 | No |
+| Apollo 12 reference | 354.75 | No | 0.00 | No |
+| Shackleton rim | 424.00 | Yes | 355.75 | No |
+| de Gerlache Rim 1 | 371.50 | No | 333.75 | No |
+| Malapert Massif | 349.75 | No | 219.50 | No |
+
+These are sampled geometric screening values on a flat reference sphere, not
+power-system sizing or communications availability.
+
 ## Fixtures and reproduction
 
 Observer-table fixtures are committed under `data/fixtures/*-2027-validation.txt`.

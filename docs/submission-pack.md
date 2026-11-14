@@ -2,10 +2,11 @@
 
 ## Judges quick start
 
-Production URL is **not available yet**. The release checklist cannot be
-completed until a Vercel project and deployment are available; see the
-[deployment record](../README.md#deployment-status). Do not submit a placeholder
-URL.
+Temporary public preview: <https://fleet-argon-rf02yd1.tmp.now/>. It is an
+anonymous Vercel deployment and expires at 2026-11-13 19:15:55 UTC unless the
+owner claims it. There is no persistent production URL yet. See the
+[deployment record](../README.md#deployment-status); replace this temporary
+preview with the claimed URL before submitting.
 
 For a 30-second tour, start at the landing page, open Mission Control, choose a
 generated site, and move the shared time cursor. Point out the local Sun/Earth
@@ -80,14 +81,17 @@ production workflow before submission.
 | **Creativity** | Shared time cursor, local sky readout, interactive 3D site view, Compare mode, and the Schedule Slip walkthrough. | `frontend/src/App.tsx`, `frontend/src/features/OrbitalScene.tsx`. Art is identified as illustrative. |
 | **Validity** | Reproducible SPICE series, saved Horizons observer/event fixtures, bounded API inputs, coverage checks, and automated tests. | `config/analysis.json`, `data/kernel_manifest.json`, `data/fixtures/`, `scripts/`, `docs/validation.md`, `frontend/src/data/*test.ts`. All results remain flat-horizon screening. |
 | **Relevance** | Moon-site Sun power screening and geometric direct-to-Earth visibility with NASA/JPL/LRO source attribution. | `docs/scientific-method.md`, `docs/asset-credits.md`, `frontend/src/App.tsx`. No terrain, link budget, or mission approval. |
-| **Presentation** | Cinematic landing page, guided Explorer/Compare flow, Method and Credits sections, and the judges' 30-second tour. | `README.md`, `frontend/src/App.tsx`, `docs/quality-pass.md`. Production deployment and private-browser verification are still outstanding. |
+| **Presentation** | Cinematic landing page, guided Explorer/Compare flow, Method and Credits sections, and the judges' 30-second tour. | `README.md`, `frontend/src/App.tsx`, `docs/quality-pass.md`. A temporary public Vercel preview was smoke-checked in an isolated browser context; persistent deployment and true private-window verification remain outstanding. |
 
 ## Marketing statement audit for the team
 
-The repository scan found no PowerPoint/deck file, final submission video, or
-submission-description file. This inventory therefore lists claims to check in
-the team's external materials; it does not assert that each claim appears in a
-deck or video. No marketing file was edited.
+The repository contains `docs/LUMEN-Project-Details.pdf` (11 pages), but no
+PowerPoint/slide deck, final submission video, or official submission-form
+description. The PDF is a project guide, not a compliant 7-slide deck. It says
+“Four sites have documented spot checks; Malapert and event crossings need
+further checks”; that sentence is outdated because all five sites now have
+observer fixtures and the selected event checks are recorded in
+`docs/validation.md`. No marketing file was edited.
 
 | Claim to search for in external materials | Current evidence-based wording |
 |---|---|
@@ -100,3 +104,4 @@ deck or video. No marketing file was edited.
 | Hero video is the previously supplied “Animation of the Moon (Web Optimized).mp4” | That unverified asset was removed. The current hero is NASA SVS “The Moon’s Rotation”; cite it and retain its visual-only meaning. |
 | Lighthouse targets, successful production deployment, or completed user tests | No production URL/Lighthouse result is available, and the three-person usability table is blank. Describe these as outstanding, not passed. |
 | NASA endorsement, guidance, or mission criteria | LUMEN is a team project; thresholds are placeholders and NASA does not sponsor or endorse it. |
+| The PDF's “Four sites have documented spot checks; Malapert and event crossings need further checks” | Replace with the final result: five sites × three epochs for Sun and Earth, plus six event comparisons at Apollo 11 and de Gerlache Rim 1; largest recorded event difference 58.0 seconds against 120 seconds. |

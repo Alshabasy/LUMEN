@@ -6,6 +6,7 @@ from scripts.lumen_science import (
     bisect_crossing,
     brackets_zero,
     enu_basis,
+    longest_below_horizon_run,
     observe_vector,
     require_coverage,
     site_vector_km,
@@ -26,6 +27,12 @@ def test_surface_vector_and_observation():
     observation = observe_vector(SITE, np.array([0.0, 1.0, 0.0]))
     assert observation.azimuth_deg == pytest.approx(90)
     assert observation.elevation_deg == pytest.approx(0)
+
+
+def test_east_longitude_normalization_is_periodic():
+    wrapped = Site("wrapped", "Wrapped", 0.0, 359.76422, 1737.4, "ME", "fixture")
+    west = Site("west", "West", 0.0, -0.23578, 1737.4, "ME", "fixture")
+    np.testing.assert_allclose(site_vector_km(wrapped), site_vector_km(west), atol=1e-9)
 
 
 def test_bisection_refines_crossing():
@@ -49,3 +56,16 @@ def test_kernel_coverage_requires_one_interval_to_cover_full_window():
     require_coverage(10, 20, [(0, 30)], "test kernel")
     with pytest.raises(ValueError, match="does not cover"):
         require_coverage(10, 20, [(0, 15), (15, 30)], "test kernel")
+
+
+def test_longest_below_horizon_run_reports_hours_and_window_clipping():
+    assert longest_below_horizon_run([1, -1, -2, 1, -1], 3600) == (2.0, False)
+    assert longest_below_horizon_run([-1, -2, 1], 900) == (0.5, True)
+    assert longest_below_horizon_run([1, 1], 900) == (0.0, False)
+
+
+def test_longest_below_horizon_run_rejects_invalid_input():
+    with pytest.raises(ValueError, match="positive"):
+        longest_below_horizon_run([-1], 0)
+    with pytest.raises(ValueError, match="finite"):
+        longest_below_horizon_run([float("nan")], 1)

@@ -33,22 +33,29 @@ export default async function handler(request: RequestLike, response: ResponseLi
   } catch {
     return errorResponse(response, 400, "Request URL is invalid.");
   }
-  const allowed = new Set(["site_id", "target"]);
+  const allowed = new Set(["site_id", "target", "epoch_utc"]);
   if ([...requestUrl.searchParams.keys()].some((key) => !allowed.has(key))) {
-    return errorResponse(response, 400, "Only site_id and target parameters are accepted.");
+    return errorResponse(response, 400, "Only site_id, target, and epoch_utc parameters are accepted.");
   }
-  if (requestUrl.searchParams.getAll("site_id").length !== 1 || requestUrl.searchParams.getAll("target").length !== 1) {
-    return errorResponse(response, 400, "Provide exactly one site_id and one target.");
+  if (["site_id", "target", "epoch_utc"].some((key) => requestUrl.searchParams.getAll(key).length !== 1)) {
+    return errorResponse(response, 400, "Provide exactly one site_id, target, and epoch_utc.");
   }
   const siteId = requestUrl.searchParams.get("site_id") ?? "";
   const target = requestUrl.searchParams.get("target") ?? "";
+  const epochUtc = requestUrl.searchParams.get("epoch_utc") ?? "";
   const site = SITE_COORDINATES[siteId];
-  if (!site || (target !== "10" && target !== "399")) {
-    return errorResponse(response, 400, "Choose a supported LUMEN site and target.");
+  const epochMatch = epochUtc.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}):00(?:\.000)?Z$/);
+  const epochMs = epochMatch ? Date.parse(`${epochMatch[1]}:00Z`) : Number.NaN;
+  const epochRoundTrip = Number.isFinite(epochMs)
+    ? new Date(epochMs).toISOString().slice(0, 16)
+    : "";
+  if (!site || (target !== "10" && target !== "399") || !Number.isFinite(epochMs)
+      || epochRoundTrip !== epochMatch?.[1]
+      || Math.abs(Date.now() - epochMs) > 120_000) {
+    return errorResponse(response, 400, "Choose a supported site and target and provide a current UTC-minute epoch.");
   }
 
-  const start = new Date();
-  start.setUTCSeconds(0, 0);
+  const start = new Date(epochMs);
   const stop = new Date(start.getTime() + 60_000);
   const utcMinute = (date: Date) => date.toISOString().slice(0, 16).replace("T", " ");
   const parameters = new URLSearchParams({
@@ -60,6 +67,7 @@ export default async function handler(request: RequestLike, response: ResponseLi
     CENTER: "coord@301",
     COORD_TYPE: "GEODETIC",
     SITE_COORD: `${site.longitudeEast},${site.latitude},0`,
+    APPARENT: "AIRLESS",
     START_TIME: utcMinute(start),
     STOP_TIME: utcMinute(stop),
     STEP_SIZE: "1m",
@@ -80,6 +88,13 @@ export default async function handler(request: RequestLike, response: ResponseLi
     }
     if (payload.error || typeof payload.result !== "string") {
       return errorResponse(response, 502, "JPL Horizons returned an invalid observer-table response.");
+    }
+    const observerTable = payload.result.split("$$SOE")[1]?.split("$$EOE")[0];
+    const hasObserverRow = observerTable?.split(/\r?\n/).some((line) =>
+      /^\s*\d{4}-[A-Za-z]{3}-\d{2}\s+\d{2}:\d{2}/.test(line),
+    );
+    if (!hasObserverRow) {
+      return errorResponse(response, 502, "JPL Horizons returned no observer rows for the requested UTC minute.");
     }
     response.setHeader("Cache-Control", "public, max-age=0, s-maxage=60, stale-while-revalidate=300");
     return response.status(200).json(payload);

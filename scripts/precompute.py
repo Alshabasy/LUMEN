@@ -16,6 +16,7 @@ from lumen_science import (
     ensure_step,
     iter_epochs,
     load_sites,
+    longest_below_horizon_run,
     observation_dict,
     observe_vector,
     require_coverage,
@@ -202,7 +203,7 @@ def build_site_dataset(
     ensure_step(step_s)
     start_et, end_et = spice.str2et(start_utc), spice.str2et(end_utc)
     surface = site_vector_km(site)
-    sun_el, sun_az, earth_el, earth_az, earth_radius = [], [], [], [], []
+    sun_el, sun_az, earth_el, earth_az, sun_radius, earth_radius = [], [], [], [], [], []
     epochs = list(iter_epochs(start_et, end_et, step_s))
     for et in epochs:
         sun_from_moon, _ = spice.spkpos("SUN", et, frame, str(analysis["aberration"]), "MOON")
@@ -211,12 +212,17 @@ def build_site_dataset(
         earth = observation_dict(observe_vector(site, np.asarray(earth_from_moon) - surface))
         sun_az.append(sun["azimuth_deg"])
         sun_el.append(sun["elevation_deg"])
+        sun_radius.append(round(angular_radius_deg(695700.0, sun["distance_km"]), 4))
         earth_az.append(earth["azimuth_deg"])
         earth_el.append(earth["elevation_deg"])
         earth_radius.append(round(angular_radius_deg(6378.1366, earth["distance_km"]), 2))
     sunlit = [value > 0 for value in sun_el]
     earth_visible = [value > 0 for value in earth_el]
     events = refined_events(site, frame, str(analysis["aberration"]), epochs, sun_el, earth_el)
+    longest_dark_h, longest_dark_bounded = longest_below_horizon_run(sun_el, step_s)
+    longest_earth_outage_h, longest_earth_outage_bounded = longest_below_horizon_run(
+        earth_el, step_s
+    )
     algorithm_commit, algorithm_dirty = algorithm_revision()
     return {
         "schema_version": "1.0",
@@ -234,14 +240,17 @@ def build_site_dataset(
             "sun_az_deg": sun_az,
             "earth_el_deg": earth_el,
             "earth_az_deg": earth_az,
+            "sun_radius_deg": sun_radius,
             "earth_radius_deg": earth_radius,
         },
         "events": events,
         "summary": {
             "sunlit_fraction": round(sum(sunlit) / len(sunlit), 4),
             "earth_center_visible_fraction": round(sum(earth_visible) / len(earth_visible), 4),
-            "longest_dark_h": None,
-            "longest_earth_outage_h": None
+            "longest_dark_h": round(longest_dark_h, 4),
+            "longest_dark_bounded_by_window": longest_dark_bounded,
+            "longest_earth_outage_h": round(longest_earth_outage_h, 4),
+            "longest_earth_outage_bounded_by_window": longest_earth_outage_bounded
         },
         "provenance": {
             "kernels": [

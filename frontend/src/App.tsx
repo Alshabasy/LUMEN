@@ -26,6 +26,8 @@ import {
   RefreshCw,
   Volume2,
   VolumeX,
+  Menu,
+  X,
 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -105,6 +107,7 @@ function App() {
   );
   const [heroVideoPlaying, setHeroVideoPlaying] = useState(false);
   const [heroVideoError, setHeroVideoError] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useLayoutEffect(() => {
     const root = pageRef.current;
@@ -247,6 +250,15 @@ function App() {
     if (!video) return;
     video.play().catch(() => setHeroVideoPlaying(false));
   }, [ambientVideo]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileNavOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [mobileNavOpen]);
 
   const toggleHeroVideo = () => {
     const video = heroVideoRef.current;
@@ -399,11 +411,11 @@ function App() {
             LUMEN<small>FIELD NOTES / 01</small>
           </span>
         </a>
-        <nav className="nav-links" aria-label="Primary navigation">
-          <a href="#explore">Explore</a>
-          <a href="#method">Method</a>
-          <a href="#limits">Limits</a>
-          <a href="#credits">Credits</a>
+        <nav id="primary-navigation" className={`nav-links${mobileNavOpen ? " is-mobile-open" : ""}`} aria-label="Primary navigation">
+          <a href="#explore" onClick={() => setMobileNavOpen(false)}>Explore</a>
+          <a href="#method" onClick={() => setMobileNavOpen(false)}>Method</a>
+          <a href="#limits" onClick={() => setMobileNavOpen(false)}>Limits</a>
+          <a href="#credits" onClick={() => setMobileNavOpen(false)}>Credits</a>
         </nav>
         <div className="nav-right">
           <span className="status-pill">
@@ -436,6 +448,16 @@ function App() {
           <a className="nav-cta" href="#explore">
             Open navigator <ChevronRight size={14} />
           </a>
+          <button
+            type="button"
+            className="mobile-nav-toggle"
+            onClick={() => setMobileNavOpen((open) => !open)}
+            aria-expanded={mobileNavOpen}
+            aria-controls="primary-navigation"
+            aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"}
+          >
+            {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
       </header>
 
@@ -913,7 +935,7 @@ function ScenarioColumn({ title, date, comparison }: { title: string; date: Scen
     <div className="schedule-slip-column">
       <div className="schedule-slip-column-head"><b>{title}</b><span>{formatUtc(date.startUtc)} – {formatUtc(date.endUtc)} UTC</span></div>
       <div className="schedule-slip-metrics">
-        <ScenarioMetric label="Sunlit fraction" value={`${(date.sunlitFraction * 100).toFixed(1)}%`} delta={changePercent(date.sunlitFraction, comparison.sunlitFraction)} />
+        <ScenarioMetric label="Sun-centre above horizon fraction" value={`${(date.sunlitFraction * 100).toFixed(1)}%`} delta={changePercent(date.sunlitFraction, comparison.sunlitFraction)} />
         <ScenarioMetric label="Earth centre visible fraction" value={`${(date.earthCenterVisibleFraction * 100).toFixed(1)}%`} delta={changePercent(date.earthCenterVisibleFraction, comparison.earthCenterVisibleFraction)} />
         <ScenarioMetric label="Longest dark period" value={`${date.longestDarkHours.toFixed(2)} h`} delta={changeHours(date.longestDarkHours, comparison.longestDarkHours)} />
         <ScenarioMetric label="Longest Earth outage" value={`${date.longestEarthOutageHours.toFixed(2)} h`} delta={changeHours(date.longestEarthOutageHours, comparison.longestEarthOutageHours)} />
@@ -1246,7 +1268,12 @@ function Explorer({
   );
   const sun = dataset.series.sun_el_deg[index];
   const earth = dataset.series.earth_el_deg[index];
+  const sunRadius = dataset.series.sun_radius_deg[index];
+  const earthRadius = dataset.series.earth_radius_deg[index];
   const earthVisible = earth > 0;
+  const sunPartialVisible = sun + sunRadius > 0;
+  const sunFullDiskVisible = sun - sunRadius > 0;
+  const earthLimbVisible = earth + earthRadius > 0;
   const nextEvent = dataset.events.find(
     (event) =>
       new Date(event.utc).getTime() > new Date(cursorUtc ?? "").getTime() &&
@@ -1331,6 +1358,12 @@ function Explorer({
             state={sun > 0 ? "ABOVE HORIZON" : "BELOW HORIZON"}
           />
           <Metric
+            icon={<Sun size={16} />}
+            label="Sun angular radius"
+            value={`${sunRadius.toFixed(4)}°`}
+            state={sunFullDiskVisible ? "FULL DISK CLEAR" : sunPartialVisible ? "PARTIAL DISK CLEAR" : "DISK BELOW HORIZON"}
+          />
+          <Metric
             icon={<Radio size={16} />}
             label="Geometric direct-to-Earth visibility"
             value={`${earth.toFixed(2)}°`}
@@ -1343,8 +1376,8 @@ function Explorer({
           <Metric
             icon={<Moon size={16} />}
             label="Earth disc radius"
-            value={`${dataset.series.earth_radius_deg[index].toFixed(2)}°`}
-            state="APPARENT ANGULAR RADIUS"
+            value={`${earthRadius.toFixed(2)}°`}
+            state={earthLimbVisible ? "EARTH LIMB VISIBLE · GEOMETRIC ONLY" : "EARTH LIMB BELOW HORIZON"}
           />
           <div className="next-event">
             <span>
@@ -1368,9 +1401,16 @@ function Explorer({
           </div>
           <p>
             Visible inputs: {formatPercent(dataset.summary.sunlit_fraction)}{" "}
-            sunlit ·{" "}
+            Sun-centre above horizon ·{" "}
             {formatPercent(dataset.summary.earth_center_visible_fraction)}{" "}
             Earth-centre visible
+          </p>
+          <p className="summary-outages">
+            Longest dark run: {dataset.summary.longest_dark_h?.toFixed(2) ?? "—"} h
+            {dataset.summary.longest_dark_bounded_by_window ? " · window-bounded" : ""}
+            <br />
+            Longest Earth-centre outage: {dataset.summary.longest_earth_outage_h?.toFixed(2) ?? "—"} h
+            {dataset.summary.longest_earth_outage_bounded_by_window ? " · window-bounded" : ""}
           </p>
           <small>Placeholder thresholds, not NASA criteria.</small>
           <div className="horizon-sensitivity">
@@ -1639,7 +1679,7 @@ function ComparePanel({
                 <b>{dataset.series.earth_el_deg[index].toFixed(2)}°</b>
               </div>
               <div>
-                <span>Sunlit in window</span>
+                <span>Sun-centre above horizon</span>
                 <b>{formatPercent(dataset.summary.sunlit_fraction)}</b>
               </div>
               <div>
@@ -1672,7 +1712,7 @@ function ComparePanel({
         <span>DELTA · SITE B − SITE A</span>
         <b>Sun elevation <i>{(secondary.series.sun_el_deg[secondaryIndex] - primary.series.sun_el_deg[primaryIndex]).toFixed(2)}°</i></b>
         <b>Earth elevation <i>{(secondary.series.earth_el_deg[secondaryIndex] - primary.series.earth_el_deg[primaryIndex]).toFixed(2)}°</i></b>
-        <b>Sunlit window <i>{((secondary.summary.sunlit_fraction - primary.summary.sunlit_fraction) * 100).toFixed(1)} pp</i></b>
+        <b>Sun-centre above horizon <i>{((secondary.summary.sunlit_fraction - primary.summary.sunlit_fraction) * 100).toFixed(1)} pp</i></b>
         <b>Earth centre visibility <i>{((secondary.summary.earth_center_visible_fraction - primary.summary.earth_center_visible_fraction) * 100).toFixed(1)} pp</i></b>
       </div>
       <p className="compare-footnote">

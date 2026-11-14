@@ -7,10 +7,21 @@ are computed from the lunar surface site, not the Moon centre, using the explici
 
 For each sample, the target vector is rotated into a local East-North-Up basis.
 Azimuth is clockwise from North and elevation is measured from the flat,
-reference-sphere horizon. Sun visibility uses the Sun centre above zero degrees.
-Earth visibility in the current pipeline uses the Earth centre above zero degrees;
-the apparent Earth-disc radius is still emitted for transparent future
-partial-disc rules.
+reference-sphere horizon. The original center-based metrics remain: Sun-centre
+above zero degrees and Earth-centre above zero degrees. The generated series now
+also carries angular radii for both bodies. Solar angular radius uses the NASA
+Goddard Sun fact-sheet volumetric mean radius of 695,700 km and the SPICE
+surface-site distance. The UI separately indicates whether the Sun's upper limb
+clears the horizon or the full disk clears it; these disk states do not replace
+the center-based validated fractions or center-crossing events. Earth-limb
+visibility is also displayed separately from Earth-centre visibility and is not
+a communications link assessment.
+
+Longest dark and Earth-centre outage durations are the longest sampled runs at
+or below zero degrees, with duration equal to sample count times the sampling
+step. A run that touches either generated-window edge is marked as
+window-bounded, so its reported duration is only a lower bound on the full
+physical interval.
 
 Terrain is not modelled. The resulting label is **geometric screening only** and
 must not be interpreted as landing approval or a communications guarantee.

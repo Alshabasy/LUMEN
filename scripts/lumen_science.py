@@ -79,6 +79,42 @@ def angular_radius_deg(body_radius_km: float, distance_km: float) -> float:
     return math.degrees(math.asin(min(1.0, body_radius_km / distance_km)))
 
 
+def longest_below_horizon_run(
+    elevations_deg: list[float], step_s: int
+) -> tuple[float, bool]:
+    """Return longest sampled below-horizon run and whether it touches a window edge.
+
+    The reported duration is sample_count * step_s, so runs at either dataset
+    boundary are lower bounds on the complete physical interval.
+    """
+    if step_s <= 0:
+        raise ValueError("step_s must be positive")
+    if not elevations_deg:
+        raise ValueError("elevations_deg must not be empty")
+    runs: list[tuple[int, int]] = []
+    start: int | None = None
+    for index, elevation in enumerate(elevations_deg):
+        if not math.isfinite(elevation):
+            raise ValueError("elevations_deg must contain finite values")
+        if elevation <= 0 and start is None:
+            start = index
+        elif elevation > 0 and start is not None:
+            runs.append((start, index - 1))
+            start = None
+    if start is not None:
+        runs.append((start, len(elevations_deg) - 1))
+    if not runs:
+        return 0.0, False
+    longest_count = max(run[1] - run[0] + 1 for run in runs)
+    duration_h = longest_count * step_s / 3600
+    bounded = any(
+        end - start + 1 == longest_count
+        and (start == 0 or end == len(elevations_deg) - 1)
+        for start, end in runs
+    )
+    return duration_h, bounded
+
+
 def brackets_zero(left: float, right: float) -> bool:
     """Return whether continuous endpoint values include or straddle zero."""
     return left == 0 or right == 0 or (left < 0 < right) or (right < 0 < left)

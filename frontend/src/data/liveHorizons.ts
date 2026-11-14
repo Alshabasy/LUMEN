@@ -80,10 +80,11 @@ function parseHorizonsRow(payload: HorizonsResponse): {
 async function fetchBody(
   siteId: string,
   target: "10" | "399",
+  epochUtc: string,
   signal?: AbortSignal,
 ) {
   const response = await fetch(
-    `${HORIZONS_ROUTE}?site_id=${encodeURIComponent(siteId)}&target=${target}`,
+    `${HORIZONS_ROUTE}?site_id=${encodeURIComponent(siteId)}&target=${target}&epoch_utc=${encodeURIComponent(epochUtc)}`,
     { signal },
   );
   if (!response.ok) {
@@ -101,9 +102,12 @@ export async function fetchLiveHorizons(
   siteId: string,
   signal?: AbortSignal,
 ): Promise<LiveHorizonsSnapshot> {
+  const epoch = new Date();
+  epoch.setUTCSeconds(0, 0);
+  const epochUtc = epoch.toISOString();
   const [sun, earth] = await Promise.all([
-    fetchBody(siteId, "10", signal),
-    fetchBody(siteId, "399", signal),
+    fetchBody(siteId, "10", epochUtc, signal),
+    fetchBody(siteId, "399", epochUtc, signal),
   ]);
   if (sun.asOfUtc !== earth.asOfUtc) {
     throw new Error("Sun and Earth snapshots came from different UTC minutes. Refresh to retry.");

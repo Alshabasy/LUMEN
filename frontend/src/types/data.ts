@@ -31,6 +31,7 @@ export interface LumenDataset {
     sun_az_deg: number[]
     earth_el_deg: number[]
     earth_az_deg: number[]
+    sun_radius_deg: number[]
     earth_radius_deg: number[]
   }
   events: Array<{ type: EventType; utc: string }>
@@ -38,7 +39,9 @@ export interface LumenDataset {
     sunlit_fraction: number
     earth_center_visible_fraction: number
     longest_dark_h: number | null
+    longest_dark_bounded_by_window?: boolean
     longest_earth_outage_h: number | null
+    longest_earth_outage_bounded_by_window?: boolean
   }
   provenance: {
     kernels: Array<{ name: string; path: string; sha256: string }>

@@ -20,6 +20,9 @@ with source credit, while third-party-marked content needs its rights checked
 with its copyright holder. NASA does not endorse LUMEN. No NASA insignia,
 logotype, employee likeness, or endorsement language is used.
 
+The Sun's 695,700 km volumetric mean radius used for its computed angular-radius
+series comes from the [NASA Goddard Sun Fact Sheet](https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html).
+
 ## Fonts, icons, and sound
 
 | Asset | Source and terms | Use |

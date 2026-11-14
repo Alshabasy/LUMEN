@@ -6,6 +6,7 @@ const WINDOW_SECONDS = SCHEDULE_WINDOW_DAYS * 24 * 60 * 60;
 export interface ScenarioMetrics {
   startUtc: string;
   endUtc: string;
+  /** Fraction of sampled Sun-centre elevations above the flat horizon. */
   sunlitFraction: number;
   earthCenterVisibleFraction: number;
   longestDarkHours: number;
